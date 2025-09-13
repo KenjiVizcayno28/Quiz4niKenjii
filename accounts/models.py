@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 import os
+import media
 import random
 def get_filename_ext(filepath):
     base_name = os.path.basename(filepath)
@@ -9,7 +10,9 @@ def get_filename_ext(filepath):
     return name, ext
 
 def upload_image_path(instance, filename):
-    pass
+    profile_path = instance.profile.profile_picture
+    name, ext = get_filename_ext(filename)
+    return os.path.join(profile_path, name, filename)
 
 class UserManager(BaseUserManager):
     def create_user(self, email, username, password=None, is_active=True, is_staff=False, is_admin=False):

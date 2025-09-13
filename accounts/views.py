@@ -76,18 +76,20 @@ def signup_view(request):
     return render(request, 'auth/signup.html')
 def signin_view(request):
     if request.method == 'POST' or None:
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        user = authenticate(request, email=email, password=password)
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        if not all([email, password]):
+            messages.error(request, 'All fields are required.')
+            return render(request, 'auth/signin.html', {'email': email, 'password': password})
+        user = authenticate(email=email, password=password)
 
         if user is not None:
             login(request, user)
-            if not Profile.objects.filter(user=user).exists():
-                return redirect('auth:profile_create')
-            else:
-                return redirect('base')
+            return redirect('profile_view')
         else:
-            messages.error(request, 'Invalid email or password')
+            messages.error(request, 'Invalid username or password. Please try again.')
+            return render(request, 'auth/signin.html', {'email': email, 'password': password})
     return render(request, 'auth/signin.html')
 
 def profile_create_view(request):
